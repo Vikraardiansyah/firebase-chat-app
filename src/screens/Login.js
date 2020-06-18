@@ -31,14 +31,14 @@ const Login = ({navigation}) => {
         placeholder="Email"
         autoCapitalize="none"
         value={email}
-        onChangeText={email => setEmail(email)}
+        onChangeText={emailText => setEmail(emailText)}
       />
       <Input
         placeholder="Password"
         autoCapitalize="none"
         secureTextEntry={true}
         value={password}
-        onChangeText={password => setPassword(password)}
+        onChangeText={passwordText => setPassword(passwordText)}
       />
       <View style={styles.viewButton}>
         <Button title="Login" onPress={signIn} buttonStyle={styles.button} />

@@ -9,22 +9,22 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(user => setUser(user));
+    const subscriber = auth().onAuthStateChanged(userData => setUser(userData));
     return subscriber; // unsubscribe on unmount
   }, []);
 
   useEffect(() => {
-    const subscriber = database()
-      .ref(`chats`)
+    database()
+      .ref('chats')
       .on('value', snapshot => {
         setMessages(snapshot.val());
         setLoading(true);
       });
   }, []);
 
-  const onSend = messages => {
+  const onSend = message => {
     database()
-      .ref(`chats`)
+      .ref('chats')
       .push(messages);
   };
 
@@ -34,7 +34,7 @@ const Chat = () => {
         <GiftedChat
           showUserAvatar={true}
           messages={Object.values(messages)}
-          onSend={messages => onSend(messages[0])}
+          onSend={message => onSend(message[0])}
           user={{
             _id: user.uid,
             name: 'Vikra Ardiansyah',

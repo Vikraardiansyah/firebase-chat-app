@@ -8,19 +8,21 @@ const Home = ({navigation}) => {
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [listUsers, setListUsers] = useState();
+  // const [listUsers, setListUsers] = useState();
 
   // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
+  function onAuthStateChanged(userData) {
+    setUser(userData);
+    if (initializing) {
+      setInitializing(false);
+    }
   }
 
   useEffect(() => {
-    const subscriber = database()
-      .ref(`users`)
+    database()
+      .ref('users')
       .on('value', snapshot => {
-        setListUsers(snapshot.val());
+        // setListUsers(snapshot.val());
       });
   }, []);
 
@@ -28,6 +30,10 @@ const Home = ({navigation}) => {
     auth()
       .signOut()
       .then(() => console.log('User signed out!'));
+  };
+
+  const maps = () => {
+    navigation.navigate('Maps');
   };
 
   const chat = () => {
@@ -41,9 +47,11 @@ const Home = ({navigation}) => {
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
-  }, []);
+  });
 
-  if (initializing) return null;
+  if (initializing) {
+    return null;
+  }
 
   if (!user) {
     return (
@@ -60,6 +68,7 @@ const Home = ({navigation}) => {
       <Button title="Chat" onPress={chat} />
       <Button title="Example Chat" onPress={chatExample} />
       <Button title="Logout" onPress={logout} />
+      <Button title="Maps" onPress={maps} />
     </View>
   );
 };

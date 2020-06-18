@@ -25,7 +25,7 @@ const Register = ({navigation}) => {
         }
       });
     database()
-      .ref(`users`)
+      .ref('users')
       .push({email, password});
   };
 
@@ -35,14 +35,14 @@ const Register = ({navigation}) => {
         placeholder="Email"
         autoCapitalize="none"
         value={email}
-        onChangeText={email => setEmail(email)}
+        onChangeText={emailText => setEmail(emailText)}
       />
       <Input
         placeholder="Password"
         autoCapitalize="none"
         secureTextEntry={true}
         value={password}
-        onChangeText={password => setPassword(password)}
+        onChangeText={passwordText => setPassword(passwordText)}
       />
       <Button title="Sign Up" onPress={signUp} />
     </View>

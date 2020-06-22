@@ -7,7 +7,7 @@ class Example extends React.Component {
       {
         _id: 1,
         text: 'Hello developer',
-        createdAt: new Date(),
+        createdAt: new Date().getTime(),
         user: {
           _id: 2,
           name: 'React Native',
@@ -16,6 +16,12 @@ class Example extends React.Component {
       },
     ],
   };
+
+  componentDidUpdate(_, previousState) {
+    if (previousState !== this.state) {
+      console.log(this.state.messages);
+    }
+  }
 
   onSend(messages = []) {
     this.setState(previousState => ({

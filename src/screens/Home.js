@@ -1,87 +1,162 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet} from 'react-native';
-import {Button} from 'react-native-elements';
-import auth from '@react-native-firebase/auth';
+import {FlatList, StyleSheet, View, SafeAreaView} from 'react-native';
+import {ListItem, Text, Button, Header} from 'react-native-elements';
 import database from '@react-native-firebase/database';
+import auth from '@react-native-firebase/auth';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Home = ({navigation}) => {
-  // Set an initializing state whilst Firebase connects
-  const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  // const [listUsers, setListUsers] = useState();
-
-  // Handle user state changes
-  function onAuthStateChanged(userData) {
-    setUser(userData);
-    if (initializing) {
-      setInitializing(false);
-    }
-  }
+  const [allChat, setAllChat] = useState([]);
 
   useEffect(() => {
-    database()
-      .ref('users')
-      .on('value', snapshot => {
-        // setListUsers(snapshot.val());
-      });
-  }, []);
-
-  const logout = () => {
-    auth()
-      .signOut()
-      .then(() => console.log('User signed out!'));
-  };
-
-  const maps = () => {
-    navigation.navigate('Maps');
-  };
-
-  const chat = () => {
-    navigation.navigate('Chat');
-  };
-
-  const chatExample = () => {
-    navigation.navigate('ChatExample');
-  };
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
+    const subscriber = auth().onAuthStateChanged(userData => setUser(userData));
+    return subscriber;
   });
 
-  if (initializing) {
-    return null;
-  }
+  useEffect(() => {
+    if (user) {
+      const subscriber = database()
+        .ref(`chats/${user.uid}`)
+        .orderByKey()
+        .on('value', snapshot => {
+          if (snapshot.val() !== null) {
+            let data = Object.values(snapshot.val());
+            setAllChat(data);
+          }
+        });
+      return () => subscriber();
+    }
+  }, [user]);
+
+  const keyExtractor = (item, index) => index.toString();
+
+  const renderItem = ({item}) => (
+    <TouchableOpacity onPress={() => goToRoom(item.data)}>
+      {item.data ? (
+        <ListItem
+          title={item.data.name}
+          subtitle={item.data.message}
+          leftAvatar={{
+            source: {
+              uri: item.data.avatar
+                ? item.data.avatar
+                : 'https://moonvillageassociation.org/wp-content/uploads/2018/06/default-profile-picture1.jpg',
+            },
+          }}
+          bottomDivider
+          rightElement={
+            <Text>
+              {new Date(item.data.createdAt)
+                .toLocaleTimeString()
+                .replace(/([\d]+:[\d]{2})(:[\d]{2})(.*)/, '$1$3')}
+            </Text>
+          }
+        />
+      ) : (
+        <></>
+      )}
+    </TouchableOpacity>
+  );
+
+  const goToRoom = dataFriend => {
+    navigation.navigate('Room', {
+      dataFriend,
+    });
+  };
+
+  const goToFriendList = () => {
+    navigation.navigate('Friend');
+  };
 
   if (!user) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>Login First</Text>
-        <Button title="Login" onPress={() => navigation.navigate('Login')} />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <Header
+          placement="left"
+          centerComponent={<Text style={styles.textHeader}>ChitChat</Text>}
+          containerStyle={styles.header}
+        />
+        <View style={styles.content}>
+          <Text style={styles.text}>You must login first</Text>
+          <Button
+            buttonStyle={styles.button}
+            title="Login"
+            type="clear"
+            onPress={() => navigation.navigate('Login')}
+          />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Welcome {user.email}</Text>
-      <Button title="Chat" onPress={chat} />
-      <Button title="Example Chat" onPress={chatExample} />
-      <Button title="Logout" onPress={logout} />
-      <Button title="Maps" onPress={maps} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Header
+        placement="left"
+        leftComponent={
+          <MaterialIcons
+            name="menu"
+            size={30}
+            style={styles.icon}
+            onPress={() => navigation.toggleDrawer()}
+          />
+        }
+        centerComponent={<Text style={styles.textHeader}>ChitChat</Text>}
+        containerStyle={styles.header}
+      />
+      <FlatList
+        keyExtractor={keyExtractor}
+        data={allChat}
+        renderItem={renderItem}
+      />
+      <View style={styles.buttonMessageView}>
+        <Button
+          icon={<MaterialIcons name="message" size={32} color="white" />}
+          buttonStyle={styles.buttonMessage}
+          onPress={goToFriendList}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  header: {
+    backgroundColor: 'white',
+    height: 60,
+  },
+  content: {
+    flex: 1,
     justifyContent: 'center',
     alignContent: 'center',
+  },
+  icon: {marginBottom: 30},
+  textHeader: {
+    fontSize: 22,
+    marginBottom: 30,
   },
   text: {
     textAlign: 'center',
     fontSize: 20,
+  },
+  button: {
+    marginLeft: 120,
+    marginRight: 120,
+  },
+  buttonMessageView: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    zIndex: 1,
+  },
+  buttonMessage: {
+    borderRadius: 50,
+    padding: 13,
   },
 });
 

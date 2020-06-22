@@ -1,32 +1,67 @@
-import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, SafeAreaView, ToastAndroid} from 'react-native';
 import {Input, Button} from 'react-native-elements';
 import auth from '@react-native-firebase/auth';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Login = ({navigation}) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [visibleToast, setvisibleToast] = useState(false);
+  const [securityText, setSecurityText] = useState(true);
+  const [icon, setIcon] = useState('md-eye-off');
+
+  useEffect(() => setvisibleToast(false), [visibleToast]);
+
+  const handleButtonPress = () => {
+    setvisibleToast(true);
+  };
+
+  const Toast = ({visible, message}) => {
+    if (visible) {
+      ToastAndroid.showWithGravityAndOffset(
+        message,
+        ToastAndroid.SHORT,
+        ToastAndroid.CENTER,
+        25,
+        50,
+      );
+      return null;
+    }
+    return null;
+  };
+
+  const showPassword = () => {
+    setSecurityText(!securityText);
+    if (icon === 'md-eye') {
+      setIcon('md-eye-off');
+    } else {
+      setIcon('md-eye');
+    }
+  };
 
   const signIn = () => {
     auth()
       .signInWithEmailAndPassword(email, password)
       .then(() => {
-        console.log('User account created & signed in!');
+        setErrorMessage();
         navigation.navigate('Home');
       })
       .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
+        if (error.code === 'auth/wrong-password') {
+          setErrorMessage('wrong password');
+          handleButtonPress();
         }
-
         if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
+          setErrorMessage('invalid email');
+          handleButtonPress();
         }
       });
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Input
         placeholder="Email"
         autoCapitalize="none"
@@ -36,34 +71,41 @@ const Login = ({navigation}) => {
       <Input
         placeholder="Password"
         autoCapitalize="none"
-        secureTextEntry={true}
+        secureTextEntry={securityText}
         value={password}
         onChangeText={passwordText => setPassword(passwordText)}
+        rightIcon={<Ionicons name={icon} size={22} onPress={showPassword} />}
       />
-      <View style={styles.viewButton}>
-        <Button title="Login" onPress={signIn} buttonStyle={styles.button} />
-        <Button
-          title="Sign Up"
-          onPress={() => navigation.navigate('Register')}
-          buttonStyle={styles.button}
-        />
-      </View>
-    </View>
+      <Button
+        title="Login"
+        onPress={() => {
+          signIn();
+        }}
+        buttonStyle={styles.button}
+        type="outline"
+      />
+      <Button
+        title="Don't have account? Sign Up"
+        onPress={() => navigation.navigate('Register')}
+        buttonStyle={styles.button}
+        type="clear"
+      />
+
+      <Toast visible={visibleToast} message={errorMessage} />
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 20,
   },
   viewButton: {
     flex: 1,
     flexDirection: 'row',
   },
-  button: {
-    width: 150,
-    margin: 10,
-  },
+  button: {marginLeft: 20, marginRight: 20, marginBottom: 5, borderRadius: 30},
 });
 
 export default Login;

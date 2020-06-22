@@ -994,6 +994,11 @@
     eslint-plugin-react-native "3.6.0"
     prettier "1.16.4"
 
+"@react-native-community/geolocation@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@react-native-community/geolocation/-/geolocation-2.0.2.tgz#ba8b40f560ead8d014740d1cdea970b33f19312e"
+  integrity sha512-tTNXRCgnhJBu79mulQwzabXRpDqfh/uaDqfHVpvF0nX4NTpolpy6mvTRiFg7eWFPGRArsnZz1EYp6rHfJWGgEA==
+
 "@react-native-community/masked-view@^0.1.10":
   version "0.1.10"
   resolved "https://registry.yarnpkg.com/@react-native-community/masked-view/-/masked-view-0.1.10.tgz#5dda643e19e587793bc2034dd9bf7398ad43d401"
@@ -1034,6 +1039,14 @@
     query-string "^6.12.1"
     react-is "^16.13.0"
     use-subscription "^1.4.0"
+
+"@react-navigation/drawer@^5.8.2":
+  version "5.8.2"
+  resolved "https://registry.yarnpkg.com/@react-navigation/drawer/-/drawer-5.8.2.tgz#23714daf19a914d27396376206d0cd9b5fbdd46d"
+  integrity sha512-s/+5hh468LVkoEW/63MJdBOwcbniKtgWP0fcZMo5yG5NdYvPd8R+VJuBVGsRBSs1KwVIC4Gx+aRROMxe4bhW1w==
+  dependencies:
+    color "^3.1.2"
+    react-native-iphone-x-helper "^1.2.1"
 
 "@react-navigation/native@^5.5.1":
   version "5.5.1"
